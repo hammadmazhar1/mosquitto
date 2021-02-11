@@ -306,11 +306,14 @@ int handle__publish(struct mosquitto *context)
 		msg = NULL;
 		dup = 1;
 	}
+	/*Test Code snippet to intercept state changes on MQTT broker*/
 	if (strncmp(msg->topic,"Bulb_Level",20)==0){
 		time_t cur_sec_time;
 		cur_sec_time = time(NULL);
 		time_t cur_hour_of_day = (cur_sec_time%86400)/(60*60)
 		if (cur_hour_of_day>=11 && cur_hour_of_day<=18){
+			log__printf(NULL, MOSQ_LOG_DEBUG, "Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Violates Policy", context->id, dup, msg->qos, msg->retain, msg->source_mid, msg->topic, (long)msg->payloadlen);
+
 			rc = send__puback(context, msg->source_mid, reason_code, NULL);
 			return rc;
 		}
