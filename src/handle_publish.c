@@ -18,6 +18,7 @@ Contributors:
 
 #include "config.h"
 
+#include <time.h>
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -305,7 +306,18 @@ int handle__publish(struct mosquitto *context)
 		msg = NULL;
 		dup = 1;
 	}
+	if (strncmp(msg->topic,"Bulb_Level",20)==0){
+		time_t cur_sec_time;
+		cur_sec_time = time(NULL);
+		time_t cur_hour_of_day = (cur_sec_time%86400)/(60*60)
+		if (cur_hour_of_day>=11 && cur_hour_of_day<=18){
+			rc = send__puback(context, msg->source_mid, reason_code, NULL);
+			return rc;
+		}
+	}
 
+	/* this snippet controls message pass on to the sending mechanisms,
+	 any policy decisions must be checked before here*/
 	switch(stored->qos){
 		case 0:
 			rc2 = sub__messages_queue(context->id, stored->topic, stored->qos, stored->retain, &stored);
