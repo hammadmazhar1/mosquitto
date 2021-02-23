@@ -108,7 +108,7 @@ WITH_COVERAGE:=no
 WITH_UNIX_SOCKETS:=yes
 
 # Build mosquitto_sub with cJSON support
-WITH_CJSON:=yes
+#WITH_CJSON:=yes
 
 # Build mosquitto with support for the $CONTROL topics.
 WITH_CONTROL:=yes
