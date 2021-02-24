@@ -4,7 +4,14 @@
 # include "headers.h" 
 
 typedef std::vector< std::set< std::string > > sigma;
-
+typedef std::set< std::string > snapshot;
+struct sys_state{
+	snapshot s;
+	bool isTrue(std::string prop){
+		std::set<std::string>::iterator it = s.find(prop) ;
+		return (it!= s.end()); 
+	}
+};
 
 struct TRACE{
 
