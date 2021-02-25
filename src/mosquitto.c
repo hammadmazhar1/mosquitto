@@ -50,7 +50,9 @@ Contributors:
 #ifdef WITH_WEBSOCKETS
 #  include <libwebsockets.h>
 #endif
-
+#ifdef WITH_POLICY_CHECK
+# include "policy_adder.h"
+#endif
 #include "mosquitto_broker_internal.h"
 #include "memory_mosq.h"
 #include "misc_mosq.h"
@@ -543,7 +545,14 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-
+#ifdef WITH_POLICY_CHECK
+	ctxt->pengine = (policy_engine*) mosquitto_malloc(sizeof(policy_engine));
+	char* policy = "=>(Change_in_intensity,Y(S(!(Change_in_temperature,Color_temperature_100))))";
+	ctxt->pengine->add_policy(policy);
+	ctxt->bulb_temp = 100;
+	ctxt->bulb_int = 100;
+	log__printf(NULL, MOSQ_LOG_DEBUG, "Started Policy checker and state tracking");
+#endif
 #ifdef WITH_SYS_TREE
 	sys_tree__init();
 #endif

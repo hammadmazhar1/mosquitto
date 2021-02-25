@@ -113,6 +113,8 @@ WITH_UNIX_SOCKETS:=yes
 # Build mosquitto with support for the $CONTROL topics.
 WITH_CONTROL:=yes
 
+# Build with policy checker
+WITH_POLICY_CHECK:=yes
 # Build the broker with the jemalloc allocator
 WITH_JEMALLOC:=no
 
@@ -228,7 +230,9 @@ ifeq ($(WITH_WRAP),yes)
 	BROKER_LDADD:=$(BROKER_LDADD) -lwrap
 	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_WRAP
 endif
-
+ifeq ($(WITH_POLICY_CHECK),yes)
+	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_POLICY_CHECK
+endif
 ifeq ($(WITH_TLS),yes)
 	APP_CPPFLAGS:=$(APP_CPPFLAGS) -DWITH_TLS
 	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_TLS

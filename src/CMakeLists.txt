@@ -101,7 +101,11 @@ endif (USE_LIBWRAP)
 
 option(INC_DB_UPGRADE
 	"Include database upgrade support? (recommended)" ON)
-
+option(WITH_POLICY_CHECK
+	"Include policy checker" ON)
+if (WITH_POLICY_CHECK)
+	add_definitions("-DWITH_POLICY_CHECK")
+endif(WITH_POLICY_CHECK)
 option(INC_MEMTRACK
 	"Include memory tracking support?" ON)
 if (INC_MEMTRACK)
@@ -168,7 +172,6 @@ if (HAVE_GETADDRINFO_A AND WITH_ADNS)
 	set (MOSQ_LIBS ${MOSQ_LIBS} anl)
 endif (HAVE_GETADDRINFO_A AND WITH_ADNS)
 
-
 if (UNIX)
 	if (APPLE)
 		set (MOSQ_LIBS ${MOSQ_LIBS} dl m)
@@ -202,6 +205,7 @@ if (WITH_WEBSOCKETS)
 		set (MOSQ_LIBS ${MOSQ_LIBS} websockets)
 	endif (STATIC_WEBSOCKETS)
 endif (WITH_WEBSOCKETS)
+
 
 add_executable(mosquitto ${MOSQ_SRCS})
 target_link_libraries(mosquitto ${MOSQ_LIBS})
