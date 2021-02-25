@@ -33,6 +33,7 @@ Contributors:
 #include "send_mosq.h"
 #include "sys_tree.h"
 #include "util_mosq.h"
+#include "constate.h"
 
 
 int handle__publish(struct mosquitto *context)
@@ -308,23 +309,52 @@ int handle__publish(struct mosquitto *context)
 	}
 	/*Test Code snippet to intercept state changes on MQTT broker*/
 	log__printf(NULL, MOSQ_LOG_DEBUG, "checking for policy compliance");
-	log__printf(NULL, MOSQ_LOG_DEBUG, "msg topic is %s",stored->topic);
+	struct sys_state new_state;
 	if (strncmp(stored->topic,"Bulb_Level",10)==0){
-		time_t now = time(0);
-		log__printf(NULL, MOSQ_LOG_DEBUG, "Policy defined for this topic");
-		struct tm *cur_time = localtime(&now);	
-		int cur_hour_of_day = cur_time->tm_hour;
-		int cur_min_of_day = cur_time->tm_min;
-		if (cur_hour_of_day==10 && cur_min_of_day>=0 && cur_min_of_day<=5){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Violates Policy (Bulb Level is unchanged between 10:00 to 10:05", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
-			rc = send__puback(context, stored->source_mid, reason_code, NULL);
-			return rc;
-		} else{
-		log__printf(NULL, MOSQ_LOG_DEBUG, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy (Bulb Level is unchanged between 10:00 to 10:05", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
+		int new_bulb_level= * ((uint16_t*) stored->payload);
+		if (new_bulb_level != context->bulb_level){
+			new_state.s.insert(std::string("Change_in_intensity"));
 		}
-	} else{
-		log__printf(NULL,MOSQ_LOG_DEBUG,"No policy defined for this topic");	
 	}
+	if (strncmp(stored->topic,"Bulb_Temp",9)==0){
+		int new_temp = *((uint16_t*) stored->payload);
+		if (new_temp != context->bulb_temp){
+			new_state.s.insert(std::string("Change_in_temperature"));
+		}
+		if (context->bulb_temp == 100){
+			new_state.s.insert(std::string("Color_temperature_100"));
+		}
+	}
+	if(context->pengine->monitor(new_state)){
+		if (strncmp(stored->topic,"Bulb_Level",10)==0){
+			context->bulb_level = *((uint16_t*) stored->payload);
+		}
+		if (strncmp(stored->topic,"Bulb_Temp",9)==0){
+			context->bulb_temp = *((uint16_t*) stored->payload);		
+		}
+		log__printf(NULL, MOSQ_LOG_DEBUG, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy (Bulb Level is unchanged between 10:00 to 10:05", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
+	} else{
+		log__printf(NULL, MOSQ_LOG_DEBUG, "Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Violates Policy (Bulb Level is unchanged between 10:00 to 10:05", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
+		rc = send__puback(context, stored->source_mid, reason_code, NULL);
+		return rc;
+	}
+	// log__printf(NULL, MOSQ_LOG_DEBUG, "msg topic is %s",stored->topic);
+	// if (strncmp(stored->topic,"Bulb_Level",10)==0){
+	// 	time_t now = time(0);
+	// 	log__printf(NULL, MOSQ_LOG_DEBUG, "Policy defined for this topic");
+	// 	struct tm *cur_time = localtime(&now);	
+	// 	int cur_hour_of_day = cur_time->tm_hour;
+	// 	int cur_min_of_day = cur_time->tm_min;
+	// 	if (cur_hour_of_day==10 && cur_min_of_day>=0 && cur_min_of_day<=5){
+	// 		log__printf(NULL, MOSQ_LOG_DEBUG, "Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Violates Policy (Bulb Level is unchanged between 10:00 to 10:05", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
+	// 		rc = send__puback(context, stored->source_mid, reason_code, NULL);
+	// 		return rc;
+	// 	} else{
+	// 	log__printf(NULL, MOSQ_LOG_DEBUG, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy (Bulb Level is unchanged between 10:00 to 10:05", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
+	// 	}
+	// } else{
+	// 	log__printf(NULL,MOSQ_LOG_DEBUG,"No policy defined for this topic");	
+	// }
 
 	/* this snippet controls message pass on to the sending mechanisms,
 	 any policy decisions must be checked before here*/

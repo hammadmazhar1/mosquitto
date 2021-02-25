@@ -4,12 +4,15 @@ include_directories(${mosquitto_SOURCE_DIR} ${mosquitto_SOURCE_DIR}/src
 
 set (MOSQ_SRCS
 	../lib/alias_mosq.c ../lib/alias_mosq.h
+	ast.h
+	ast_util.h
 	bridge.c bridge_topic.c
 	conf.c
 	conf_includedir.c
 	context.c
 	control.c
 	database.c
+	evaluator.h
 	handle_auth.c
 	handle_connack.c
 	handle_connect.c
@@ -23,6 +26,7 @@ set (MOSQ_SRCS
 	handle_subscribe.c
 	../lib/handle_unsuback.c
 	handle_unsubscribe.c
+	headers.h
 	keepalive.c
 	lib_load.h
 	logging.c
@@ -37,6 +41,7 @@ set (MOSQ_SRCS
 	../lib/net_mosq_ocsp.c ../lib/net_mosq.c ../lib/net_mosq.h
 	../lib/packet_datatypes.c
 	../lib/packet_mosq.c ../lib/packet_mosq.h
+	parser.h
 	password_mosq.c password_mosq.h
 	persist_read_v234.c persist_read_v5.c persist_read.c
 	persist_write_v5.c persist_write.c
@@ -63,6 +68,7 @@ set (MOSQ_SRCS
 	../lib/strings_mosq.c
 	subs.c
 	sys_tree.c sys_tree.h
+	traces.h
 	../lib/time_mosq.c
 	../lib/tls_mosq.c
 	topic_tok.c
@@ -95,7 +101,11 @@ endif (USE_LIBWRAP)
 
 option(INC_DB_UPGRADE
 	"Include database upgrade support? (recommended)" ON)
-
+option(WITH_POLICY_CHECK
+	"Include policy checker" ON)
+if (WITH_POLICY_CHECK)
+	add_definitions("-DWITH_POLICY_CHECK")
+endif(WITH_POLICY_CHECK)
 option(INC_MEMTRACK
 	"Include memory tracking support?" ON)
 if (INC_MEMTRACK)
@@ -162,7 +172,6 @@ if (HAVE_GETADDRINFO_A AND WITH_ADNS)
 	set (MOSQ_LIBS ${MOSQ_LIBS} anl)
 endif (HAVE_GETADDRINFO_A AND WITH_ADNS)
 
-
 if (UNIX)
 	if (APPLE)
 		set (MOSQ_LIBS ${MOSQ_LIBS} dl m)
@@ -196,6 +205,7 @@ if (WITH_WEBSOCKETS)
 		set (MOSQ_LIBS ${MOSQ_LIBS} websockets)
 	endif (STATIC_WEBSOCKETS)
 endif (WITH_WEBSOCKETS)
+
 
 add_executable(mosquitto ${MOSQ_SRCS})
 target_link_libraries(mosquitto ${MOSQ_LIBS})
