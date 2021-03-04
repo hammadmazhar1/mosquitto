@@ -45,7 +45,7 @@ bool policy_engine::add_policy(char * raw_policy)
 
 bool policy_engine::monitor(sys_state st)
 {
-    int sz = policy_asts.size(); 
+    int sz = (int) policy_asts.size(); 
     for(int i = 0 ; i < sz ; ++i)
     {
         if(!policy_evaluators[i]->policy_check(policy_asts[i], &st)) return false;  
