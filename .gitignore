@@ -87,3 +87,9 @@ www/cache/
 __pycache__
 .vscode/settings.json
 .vscode/c_cpp_properties.json
+
+*.make
+*.cmake
+*.marks
+*.includecache
+CMakeFiles/
