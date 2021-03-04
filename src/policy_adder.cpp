@@ -3,9 +3,13 @@
     //constructor: creates a parser and initializes the other data-structures. 
 policy_engine::policy_engine()
 {
+    error_message_without_return("entering constructor");
     formula_parser = (pltl_parser*) malloc(sizeof(pltl_parser)) ; 
+    error_message_without_return("created formula parser");
     policy_asts.clear(); 
+    error_message_without_return("cleared policy asts");
     policy_evaluators.clear(); 
+    error_message_without_return("cleared evaluators");
 }
 
 bool policy_engine::add_policy(char * raw_policy)

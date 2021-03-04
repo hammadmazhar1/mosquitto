@@ -35,7 +35,7 @@ WITH_THREADING:=yes
 # to connect to other brokers and subscribe/publish to topics. You probably
 # want to leave this included unless you want to save a very small amount of
 # memory size and CPU time.
-WITH_BRIDGE:=yes
+WITH_BRIDGE:=no
 
 # Comment out to remove persistent database support from the broker. This
 # allows the broker to store retained messages and durable subscriptions to a
@@ -120,7 +120,7 @@ WITH_JEMALLOC:=no
 
 # Build with xtreport capability. This is for debugging purposes and is
 # probably of no particular interest to end users.
-WITH_XTREPORT=no
+WITH_XTREPORT=yes
 
 # =============================================================================
 # End of user configuration
