@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-typedef struct policy_engine policy_engine;
+// typedef struct policy_engine policy_engine;
 
 policy_engine* new_policy_engine();
 

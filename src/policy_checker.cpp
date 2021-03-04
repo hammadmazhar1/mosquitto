@@ -5,7 +5,9 @@
 
 
 policy_engine* new_policy_engine(){
-    return new policy_engine();
+	policy_engine *pengine = new policy_engine();
+	error_message_without_return("created policy engine");
+    return pengine;
 }
 
 bool policy_engine_add_policy(policy_engine* pengine,char* raw_policy){
