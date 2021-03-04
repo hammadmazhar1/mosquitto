@@ -338,7 +338,7 @@ int log__vprintf(unsigned int priority, const char *fmt, va_list va)
 	return MOSQ_ERR_SUCCESS;
 }
 
-int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...)
+int log__printf(struct mosquitto *mosq, int priority, const char *fmt, ...)
 {
 	va_list va;
 	int rc;

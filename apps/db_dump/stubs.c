@@ -32,7 +32,7 @@ int handle__packet(struct mosquitto *context)
 	return 0;
 }
 
-int log__printf(struct mosquitto *mosq, unsigned int level, const char *fmt, ...)
+int log__printf(struct mosquitto *mosq,int level, const char *fmt, ...)
 {
 	UNUSED(mosq);
 	UNUSED(level);

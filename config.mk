@@ -90,7 +90,7 @@ WITH_STATIC_LIBRARIES:=no
 CLIENT_STATIC_LDADD:=
 
 # Build shared libraries
-WITH_SHARED_LIBRARIES:=yes
+WITH_SHARED_LIBRARIES:=no
 
 # Build with async dns lookup support for bridges (temporary). Requires glibc.
 #WITH_ADNS:=yes
@@ -150,7 +150,7 @@ ifeq ($(UNAME),SunOS)
 		CFLAGS?=-Wall -ggdb -O2
 	endif
 else
-	CFLAGS?=-Wall -ggdb -O2 -Wconversion
+	CFLAGS?=-Wall -ggdb -O2 -Wconversion -fpermissive
 endif
 
 STATIC_LIB_DEPS:=
@@ -232,6 +232,7 @@ ifeq ($(WITH_WRAP),yes)
 endif
 ifeq ($(WITH_POLICY_CHECK),yes)
 	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_POLICY_CHECK
+
 endif
 ifeq ($(WITH_TLS),yes)
 	APP_CPPFLAGS:=$(APP_CPPFLAGS) -DWITH_TLS

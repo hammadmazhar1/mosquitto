@@ -38,7 +38,9 @@ Contributors:
 #else
 #  include <dummypthread.h>
 #endif
-
+#ifdef WITH_POLICY_CHECK
+#  include "policy_adder.h"
+#endif
 #ifdef WITH_SRV
 #  include <ares.h>
 #endif
@@ -71,9 +73,7 @@ typedef SOCKET mosq_sock_t;
 #else
 typedef int mosq_sock_t;
 #endif
-#ifdef WITH_POLICY_CHECK
-#include "policy_adder.h"
-#endif
+
 enum mosquitto_msg_direction {
 	mosq_md_in = 0,
 	mosq_md_out = 1
@@ -353,10 +353,10 @@ struct mosquitto {
 	uint16_t remote_port;
 #endif
 	uint32_t events;
-#ifdef WITH_POLICY_CHECK
-	policy_engine * pengine;
+#ifdef WITH_POLICY_CHECK 
+	policy_engine* pengine;
+	int bulb_level;
 	int bulb_temp;
-	int bulb_inten;
 #endif
 };
 
