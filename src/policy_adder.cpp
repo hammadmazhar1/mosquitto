@@ -45,12 +45,12 @@ bool policy_engine::add_policy(char * raw_policy)
 
 bool policy_engine::monitor(sys_state st)
 {
-    int sz = (int) policy_asts.size(); 
-    for(int i = 0 ; i < sz ; ++i)
+    std::size_t sz = policy_asts.size(); 
+    for(std::size_t i = 0 ; i < sz ; ++i)
     {
         if(!policy_evaluators[i]->policy_check(policy_asts[i], &st)) return false;  
     }
-    for(int i = 0 ; i < sz; ++i)
+    for(std::size_t i = 0 ; i < sz; ++i)
         policy_evaluators[i]->copy_policychecker_state(); 
     return true; 
 }
