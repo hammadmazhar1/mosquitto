@@ -310,6 +310,17 @@ int handle__publish(struct mosquitto *context)
 	}
 	/*Test Code snippet to intercept state changes on MQTT broker*/
 	log__printf(NULL, MOSQ_LOG_DEBUG, "checking for policy compliance");
+	if (!context->pengine){
+		policy_engine* p =new_policy_engine(); 
+		log__printf(NULL,MOSQ_LOG_INFO,"created policy engine");
+		context->pengine = p;
+		char policy[76];
+		snprintf(policy, sizeof(policy),"=>(Change_in_intensity,Y(S(!(Change_in_temperature),Color_temperature_100)))\0");
+		context->pengine->add_policy(policy);
+		context->bulb_temp = 100;
+		context->bulb_level = 100;
+		log__printf(NULL, MOSQ_LOG_INFO, "Started Policy checker and state tracking");
+	}
 	if(policy_engine_monitor(context->pengine, context, stored)){
 		log__printf(NULL, MOSQ_LOG_DEBUG, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy (Bulb Level is unchanged between 10:00 to 10:05", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 	} else{

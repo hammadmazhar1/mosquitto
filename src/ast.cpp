@@ -2,7 +2,18 @@
 #include "headers.h"
 #include "ast.h"
 
-typedef struct ast_node ast_node ; 
+//typedef struct ast_node ast_node ; 
+ast_node::ast_node()
+	{
+		children.clear() ; 
+	}
+
+void ast_node::add_children(ast_node *  n)
+	{
+		printf("adding child\n");
+		if(n)children.push_back(n) ; 
+		printf("child_added\n");
+	}	
 
 std::string nodetype_to_string(nodeType n, char * v)
 {

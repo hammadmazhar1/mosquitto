@@ -15,19 +15,27 @@ policy_engine::policy_engine()
 bool policy_engine::add_policy(char * raw_policy)
 {
     ast_node * fast = new ast_node() ;
+    char msg[50];
+    snprintf(msg, sizeof(msg),"initialized policy ast");
+    error_message_without_return(msg);
     if(!fast)
     {
+	error_message_without_return("couldn't allocate space for ast root inside add_policy <policy_adder.h>\n");
         fprintf(stderr,"couldn't allocate space for ast root inside add_policy <policy_adder.h>\n");
         return false; 
     }
         
-    fast = formula_parser->parse_formula_to_ast(raw_policy, fast) ; 
+    ast_node* fast2 = formula_parser->parse_formula_to_ast(raw_policy, fast) ; 
     if(!fast){
+	error_message_without_return("couldn't allocate space for ast root inside add_policy <policy_adder.h>\n");
         fprintf(stderr,"couldn't allocate space for ast root inside add_policy <policy_adder.h>\n");
         return false; 
 
     }
-    policy_asts.push_back(fast) ; 
+    snprintf(msg, sizeof(msg),"parsed formula policy ast");
+    policy_asts.push_back(fast2) ; 
+    snprintf(msg, sizeof(msg),"added policy ast");
+    error_message_without_return(msg);
     int policy_size = formula_parser->getGlobalIndex();
 
     pltl_evaluator * peval = new pltl_evaluator(policy_size); 

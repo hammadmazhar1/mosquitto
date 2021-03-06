@@ -543,18 +543,11 @@ int main(int argc, char *argv[])
 				log__printf(NULL, MOSQ_LOG_WARNING, "Failed to associate persisted user %s with ACLs, "
 					"likely due to changed ports while using a per_listener_settings configuration.", ctxt->username);
 			}
-#ifdef WITH_POLICY_CHECK
-			policy_engine* p =new_policy_engine(); 
-			log__printf(NULL,MOSQ_LOG_INFO,"created policy engine");
-			ctxt->pengine = p;
-			char* policy = "=>(Change_in_intensity,Y(S(!(Change_in_temperature,Color_temperature_100))))";
-			ctxt->pengine->add_policy(policy);
-			ctxt->bulb_temp = 100;
-			ctxt->bulb_level = 100;
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Started Policy checker and state tracking");
-#endif
+	
 		}
+
 	}
+	log__printf(NULL,MOSQ_LOG_INFO,"Out of iter loop");
 
 #ifdef WITH_SYS_TREE
 	sys_tree__init();

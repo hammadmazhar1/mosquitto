@@ -5,9 +5,13 @@
 
 void remove_space(char *formula)
 {
-	int i, j, len =strlen(formula); 
+	int i, j, len =strlen(formula);
+	//char msg[50];
+	
 	for(i=0,j=0; j<len;++j)
 	{
+		//snprintf(msg, sizeof(msg),"i:%d ,j:%d, len:%d",i,j,len);
+		//error_message_without_return(msg);
 		if(formula[j]==' ')continue;
 		formula[i]=formula[j]; 
 		++i;
@@ -108,7 +112,7 @@ std::pair< int , ast_node *> pltl_parser::parse_formula( char * formula, int cIn
     
     cIndex += l ; 
     current_node->aIndex = globalIndex; ++globalIndex; 
-    #ifdef DEBUG 
+    #ifdef WITH_POLICY_CHECK 
         printf("DEBUG TOKEN: %s\n",tok);
     #endif 
     if(strcmp(tok,"=>")==0)     return handle_binop(formula, cIndex, len, current_node, LIMPLY); 

@@ -5,23 +5,16 @@
 #include "headers.h"
 
 
-struct ast_node{
-
+class ast_node{
+public:
 	nodeType nType ; 
 	char *nValue ; 
 	arrayIndex aIndex ; 
 	 
 	std::vector< ast_node *> children ; 
 
-	ast_node()
-	{
-		children.clear() ; 
-	}
-
-	void add_children(ast_node *  n)
-	{
-		if(n)children.push_back(n) ; 
-	}	
+	ast_node();
+	void add_children(ast_node *  n);
 
 };
 
