@@ -1,0 +1,11 @@
+2021-03-06  :17:12:48: mosquitto version 2.0.7 starting
+2021-03-06  :17:12:48: Config loaded from ../mosquitto.conf.
+2021-03-06  :17:12:48: Out of iter loop
+2021-03-06  :17:12:48: Opening ipv4 listen socket on port 1883.
+2021-03-06  :17:12:48: Opening ipv6 listen socket on port 1883.
+2021-03-06  :17:12:48: mosquitto version 2.0.7 running
+2021-03-06  :17:21:45: New connection from 192.168.0.106:55030 on port 1883.
+2021-03-06  :17:21:46: New client connected from 192.168.0.106:55030 as 2f7f80cc-7564-47ef-95ea-1989e6989a85 (p2, c1, k60, u'parapet').
+2021-03-06  :17:23:17: New connection from 192.168.0.51:47532 on port 1883.
+2021-03-06  :17:23:17: New client connected from 192.168.0.51:47532 as 610c81f6-2a60-441a-a2a4-600668c2ad02 (p2, c1, k60, u'parapet').
+2021-03-06  :17:23:32: created policy engine
