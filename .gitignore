@@ -93,3 +93,5 @@ __pycache__
 *.marks
 *.includecache
 CMakeFiles/
+mosquitto.log
+mosquitto.pid
