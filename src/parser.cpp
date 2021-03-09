@@ -63,8 +63,8 @@ int pltl_parser::getGlobalIndex()
 std::pair< int , ast_node *> pltl_parser::handle_binop(char * formula, int cIndex, int len, ast_node * current_node, nodeType n)
 {
         current_node->nType = n ; 
-        ast_node *c1 = (ast_node*)malloc(sizeof(ast_node));
-        ast_node *c2 = (ast_node*)malloc(sizeof(ast_node));
+        ast_node *c1 = new ast_node();
+        ast_node *c2 = new ast_node();
 
         assert(cIndex < len); assert(formula[cIndex] =='('); ++cIndex;
 
@@ -75,7 +75,7 @@ std::pair< int , ast_node *> pltl_parser::handle_binop(char * formula, int cInde
 
         std::pair<int, ast_node*> r2 = parse_formula(formula, cIndex, len, c2);
         current_node->add_children(r2.second); cIndex = r2.first ;
-
+        std::cout<< "cIndex:" << cIndex <<", " << "len:" << len << std::endl;
         assert(cIndex < len); assert(formula[cIndex] ==')'); ++cIndex;
 
         return std::make_pair(cIndex, current_node);
@@ -85,14 +85,14 @@ std::pair< int , ast_node *> pltl_parser::handle_binop(char * formula, int cInde
 std::pair< int , ast_node *> pltl_parser::handle_unop(char * formula, int cIndex, int len, ast_node * current_node, nodeType n)
 {
         current_node->nType = n ; 
-        ast_node *c1 = (ast_node*)malloc(sizeof(ast_node));
+        ast_node *c1 = new ast_node();
 
         assert(cIndex < len); assert(formula[cIndex] =='('); ++cIndex;
 
         std::pair<int, ast_node*> r1 = parse_formula(formula, cIndex, len, c1);
         current_node->add_children(r1.second); cIndex = r1.first ;
     
-
+        std::cout<< "cIndex:" << cIndex <<", " << "len:" << len << std::endl;
         assert(cIndex < len); assert(formula[cIndex] ==')'); ++cIndex;
 
         return std::make_pair(cIndex, current_node);

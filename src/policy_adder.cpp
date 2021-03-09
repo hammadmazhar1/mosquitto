@@ -4,7 +4,7 @@
 policy_engine::policy_engine()
 {
     error_message_without_return("entering constructor");
-    formula_parser = (pltl_parser*) malloc(sizeof(pltl_parser)) ; 
+    formula_parser = new pltl_parser() ; 
     error_message_without_return("created formula parser");
     policy_asts.clear(); 
     error_message_without_return("cleared policy asts");
@@ -39,6 +39,7 @@ bool policy_engine::add_policy(char * raw_policy)
     int policy_size = formula_parser->getGlobalIndex();
 
     pltl_evaluator * peval = new pltl_evaluator(policy_size); 
+    error_message_without_return("created evaluator");
     if(!peval)
     {
         fprintf(stderr,"Cannot allocate space for pltl evaluator inside add_policy <policy_adder.h>\n") ; 
@@ -53,13 +54,16 @@ bool policy_engine::add_policy(char * raw_policy)
 
 bool policy_engine::monitor(sys_state st)
 {
-    std::size_t sz = policy_asts.size(); 
+    std::size_t sz = policy_asts.size();
+    std::cout<<"Number of policy asts to check:"<< sz <<std::endl; 
     for(std::size_t i = 0 ; i < sz ; ++i)
     {
         if(!policy_evaluators[i]->policy_check(policy_asts[i], &st)) return false;  
     }
+    std::cout<<"Policy check complete" <<std::endl;
     for(std::size_t i = 0 ; i < sz; ++i)
         policy_evaluators[i]->copy_policychecker_state(); 
+    std::cout<<"Policy state copy complete" <<std::endl;
     return true; 
 }
 

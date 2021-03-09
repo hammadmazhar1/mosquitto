@@ -4,8 +4,8 @@
 
 pltl_evaluator::pltl_evaluator(int s)
 {
-    aSize = s ; 
-    oldState = new bool[aSize] ; 
+    aSize = s ;  
+    oldState = new bool[aSize] ;
     newState = new bool[aSize] ; 
     evalPos = 0 ; 
 

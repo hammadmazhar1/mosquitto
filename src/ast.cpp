@@ -10,9 +10,10 @@ ast_node::ast_node()
 
 void ast_node::add_children(ast_node *  n)
 	{
-		printf("adding child\n");
+		// printf("adding child\n");
+		// std::cout<<children.size()<<std::endl;
 		if(n)children.push_back(n) ; 
-		printf("child_added\n");
+		// printf("child_added\n");
 	}	
 
 std::string nodetype_to_string(nodeType n, char * v)
