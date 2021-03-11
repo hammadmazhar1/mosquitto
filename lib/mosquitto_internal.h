@@ -353,11 +353,6 @@ struct mosquitto {
 	uint16_t remote_port;
 #endif
 	uint32_t events;
-#ifdef WITH_POLICY_CHECK 
-	policy_engine* pengine;
-	int bulb_level;
-	int bulb_temp;
-#endif
 };
 
 #define STREMPTY(str) (str[0] == '\0')

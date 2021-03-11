@@ -310,19 +310,19 @@ int handle__publish(struct mosquitto *context)
 	}
 	/*Test Code snippet to intercept state changes on MQTT broker*/
 	log__printf(NULL, MOSQ_LOG_DEBUG, "checking for policy compliance");
-	if (!context->pengine){
-		policy_engine* p =new_policy_engine(); 
-		log__printf(NULL,MOSQ_LOG_INFO,"created policy engine");
-		context->pengine = p;
-		char policy[1024];
-		// strcpy(policy, "=>(Change_in_intensity,Y(S(!(Change_in_temperature),Color_temperature_100)))");
-		strcpy(policy, "=>(Change_in_intensity,!(O(Color_temperature_100)))");
-		context->pengine->add_policy(policy);
-		// context->bulb_temp = 50;
-		// context->bulb_level = 50;
-		log__printf(NULL, MOSQ_LOG_INFO, "Started Policy checker and state tracking");
-	}
-	if(policy_engine_monitor(context->pengine, context, stored)){
+	// if (!context->pengine){
+	// 	policy_engine* p =new_policy_engine(); 
+	// 	log__printf(NULL,MOSQ_LOG_INFO,"created policy engine");
+	// 	context->pengine = p;
+	// 	char policy[1024];
+	// 	// strcpy(policy, "=>(Change_in_intensity,Y(S(!(Change_in_temperature),Color_temperature_100)))");
+	// 	strcpy(policy, "=>(Change_in_intensity,!(O(Color_temperature_100)))");
+	// 	context->pengine->add_policy(policy);
+	// 	// context->bulb_temp = 50;
+	// 	// context->bulb_level = 50;
+	// 	log__printf(NULL, MOSQ_LOG_INFO, "Started Policy checker and state tracking");
+	// }
+	if(policy_engine_monitor(stored)){
 		// log__printf(NULL, MOSQ_LOG_INFO, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy (Bulb intensity only changes when bulb temp. is 100)", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 		log__printf(NULL, MOSQ_LOG_INFO, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy (Bulb intensity changes only if color_temp != 100 before)", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 	} else{

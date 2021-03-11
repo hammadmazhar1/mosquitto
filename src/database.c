@@ -161,7 +161,6 @@ int db__open(struct mosquitto__config *config)
 #ifdef WITH_PERSISTENCE
 	if(persist__restore()) return 1;
 #endif
-
 	return MOSQ_ERR_SUCCESS;
 }
 

@@ -22,10 +22,11 @@ extern "C" {
 // typedef struct policy_engine policy_engine;
 
 policy_engine* new_policy_engine();
-
+bool initialize_db_policy_engine();
 bool policy_engine_add_policy(policy_engine* pengine, char* raw_policy);
 
-bool policy_engine_monitor(policy_engine *pengine, struct mosquitto* context, struct mosquitto_msg_store * msg);
+// bool policy_engine_monitor(policy_engine *pengine, struct mosquitto* context, struct mosquitto_msg_store * msg);
+bool policy_engine_monitor(struct mosquitto_msg_store* msg);
 #ifndef __cplusplus
 }
 #endif

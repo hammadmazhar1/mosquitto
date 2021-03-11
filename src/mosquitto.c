@@ -50,9 +50,7 @@ Contributors:
 #ifdef WITH_WEBSOCKETS
 #  include <libwebsockets.h>
 #endif
-#ifdef WITH_POLICY_CHECK
-# include "policy_checker.h"
-#endif
+
 #include "mosquitto_broker_internal.h"
 #include "memory_mosq.h"
 #include "misc_mosq.h"
@@ -547,7 +545,21 @@ int main(int argc, char *argv[])
 		}
 
 	}
-	log__printf(NULL,MOSQ_LOG_INFO,"Out of iter loop");
+// #ifndef WITH_POLICY_CHECK
+	/* start up policy checker and state tracker */
+	db.pengine = new_policy_engine();
+	db.parapet_state = new system_state();
+	/*add policy to policy engine from config defined file*/
+	if (db.config->policy_file){
+		db.config->policy_fptr = mosquitto__fopen(db.config->policy_file,"r",true);
+		char raw_formula[1025];
+		if(!fgets(raw_formula,1024,db.config->policy_fptr)){
+			log__printf(NULL,MOSQ_LOG_WARNING,"Could not read policy from file:%s",db.config->policy_file);
+		}
+		policy_engine_add_policy(db.pengine,raw_formula);
+	}
+	log__printf(NULL, MOSQ_LOG_INFO, "Policy engine and state tracking created");
+// #endif
 
 #ifdef WITH_SYS_TREE
 	sys_tree__init();

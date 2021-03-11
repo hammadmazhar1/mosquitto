@@ -756,7 +756,12 @@ int config__read_file_core(struct mosquitto__config *config, bool reload, struct
 			}
 			token = strtok_r((*buf), " ", &saveptr);
 			if(token){
-				if(!strcmp(token, "acl_file")){
+				if(!strcmp(token,"policy_file")){
+#ifdef WITH_POLICY_CHECK
+					if(conf__parse_string(&token, "policy_file", &config->policy_file, saveptr)) return MOSQ_ERR_INVAL;
+#endif
+				}
+				else if(!strcmp(token, "acl_file")){
 					conf__set_cur_security_options(config, cur_listener, &cur_security_options);
 					if(reload){
 						mosquitto__free(cur_security_options->acl_file);

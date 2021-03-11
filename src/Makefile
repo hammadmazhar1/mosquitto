@@ -85,7 +85,8 @@ OBJS=	mosquitto.o \
 		parser.o \
 		ast.o \
 		ast_util.o \
-		evaluator.o 
+		evaluator.o \
+		system_state.o
 
 		
 		
@@ -346,6 +347,9 @@ policy_adder.o : policy_adder.cpp policy_adder.h
 	${CROSS_COMPILE}$(CXX) $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
 
 policy_checker.o: policy_checker.cpp policy_checker.h mosquitto_broker_internal.h
+	${CROSS_COMPILE}$(CXX) $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
+
+system_state.o: system_state.cpp system_state.h
 	${CROSS_COMPILE}$(CXX) $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
 
 install : all

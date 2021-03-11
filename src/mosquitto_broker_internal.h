@@ -34,6 +34,10 @@ Contributors:
 #include "password_mosq.h"
 #include "tls_mosq.h"
 #include "uthash.h"
+// #ifndef WITH_POLICY_CHECK
+# include "policy_checker.h"
+# include "system_state.h"
+// #endif
 
 #ifndef __GNUC__
 #define __attribute__(attrib)
@@ -291,6 +295,10 @@ struct mosquitto__config {
 	int sys_interval;
 	bool upgrade_outgoing_qos;
 	char *user;
+// #ifndef WITH_POLICY_CHECK
+	char* policy_file;
+	FILE* policy_fptr;
+// #endif
 #ifdef WITH_WEBSOCKETS
 	int websockets_log_level;
 	uint16_t websockets_headers_size;
@@ -299,6 +307,7 @@ struct mosquitto__config {
 	struct mosquitto__bridge *bridges;
 	int bridge_count;
 #endif
+
 	struct mosquitto__security_options security_options;
 };
 
@@ -469,6 +478,11 @@ struct mosquitto_db{
 #ifdef WITH_EPOLL
 	int epollfd;
 #endif
+// #ifndef WITH_POLICY_CHECK
+	policy_engine* pengine;
+	system_state* parapet_state;
+
+// #endif
 	struct mosquitto_message_v5 *plugin_msgs;
 };
 
