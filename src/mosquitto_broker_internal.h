@@ -37,6 +37,7 @@ Contributors:
 // #ifndef WITH_POLICY_CHECK
 # include "policy_checker.h"
 # include "system_state.h"
+# include "pl_engine.h"
 // #endif
 
 #ifndef __GNUC__
@@ -298,6 +299,8 @@ struct mosquitto__config {
 // #ifndef WITH_POLICY_CHECK
 	char* policy_file;
 	FILE* policy_fptr;
+	char* prop_file;
+	FILE* prop_fptr;
 // #endif
 #ifdef WITH_WEBSOCKETS
 	int websockets_log_level;
@@ -481,7 +484,7 @@ struct mosquitto_db{
 // #ifndef WITH_POLICY_CHECK
 	policy_engine* pengine;
 	system_state* parapet_state;
-
+	pl_engine* pl_solver;
 // #endif
 	struct mosquitto_message_v5 *plugin_msgs;
 };

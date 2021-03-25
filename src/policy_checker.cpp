@@ -1,6 +1,7 @@
-
-
 #include "policy_checker.h"
+#include "headers.h"
+#include "pl_engine.h"
+#include "system_state.h"
 
 
 
@@ -15,112 +16,55 @@ bool policy_engine_add_policy(policy_engine* pengine,char* raw_policy){
     return pengine->add_policy(raw_policy);
 }
 
-// bool policy_engine_monitor(policy_engine* pengine, struct mosquitto* context, struct mosquitto_msg_store * msg){
-//     //create new state and check for propositions
-//     struct sys_state new_state;
-//     if (strncmp(msg->topic,"int_Bulb_Level",10)==0){
-// 		int new_bulb_level= (atoi((char*) msg->payload));
-// 		if (new_bulb_level != context->bulb_level){
-// 			new_state.s.insert(std::string("Change_in_intensity"));
-// 			log__prinf(NULL,MOSQ_LOG_INFO,"Proposition 'Change_in_intensity' true");
-// 		}
-// 	}
-// 	if (strncmp(msg->topic,"Bulb_Temp",9)==0){
-// 		int new_temp = (atoi((char*) msg->payload));
-// 		if (new_temp != context->bulb_temp){
-// 			new_state.s.insert(std::string("Change_in_temperature"));
-// 			log__prinf(NULL,MOSQ_LOG_INFO,"Proposition 'Change_in_temperature' true");
-// 		}
-// 	}
-// 	if (context->bulb_temp == 100){
-// 		new_state.s.insert(std::string("Color_temperature_100"));
-// 		log__prinf(NULL,MOSQ_LOG_INFO,"Proposition 'Color_temperature' true");
-// 	}
-//     //send to policy engine
-// 	if(pengine->monitor(new_state)){
-// 		if (strncmp(msg->topic,"Bulb_Level",10)==0){
-// 			char* x = (char*) msg->payload;
-// 			std::cout<<"new_bulb_level: "<<x<<std::endl;
-// 			context->bulb_level = (atoi((char*) msg->payload));
-// 		}
-// 		if (strncmp(msg->topic,"Bulb_Temp",9)==0){
-// 			char* x = (char*) msg->payload;
-// 			std::cout<<"new_bulb_temp: "<<x<<std::endl;
-// 			context->bulb_temp = (atoi((char*) msg->payload));		
-// 		}
-//         return true;
-//     }
-//     else{
-//         return false;
-//     }
-// }
+
 bool policy_engine_monitor(struct mosquitto_msg_store* msg){
     //create new state and check for propositions
-    struct sys_state new_state;
-	int level_cmp = strncmp(msg->topic,"Bulb1/int_Bulb_Level",20);
-	int temp_cmp = strncmp(msg->topic,"Bulb1/int_Bulb_Temp",19);
-	log__printf(NULL,MOSQ_LOG_INFO,"strcmp %s, %s level res: %d",msg->topic,"Bulb1/int_Bulb_Level",level_cmp);
-	log__printf(NULL,MOSQ_LOG_INFO,"strcmp %s, %s temp res: %d",msg->topic,"Bulb1/int_Bulb_Temp",temp_cmp);
-    if (!strcmp(msg->topic,"Bulb1/int_Bulb_Level")){
-		int new_bulb_level= (atoi((char*) msg->payload));
-		void* old_bulb_level = db.parapet_state->retrieve_state(std::string("Bulb1/int_Bulb_Level"));
-		if (old_bulb_level){
-			log__printf(NULL, MOSQ_LOG_INFO,"Checking old state of %s",msg->topic);
-			if (*(int*)old_bulb_level != new_bulb_level){
-				new_state.s.insert(std::string("Change_in_intensity"));
-				log__printf(NULL,MOSQ_LOG_INFO,"Proposition 'Change_in_intensity' true");	
-			}
-		} else{
-			new_state.s.insert(std::string("Change_in_intensity"));
-			log__printf(NULL,MOSQ_LOG_INFO,"Proposition 'Change_in_intensity' true");
-		}
+    system_state* new_state = new system_state();
+	system_state* old_state = db.parapet_state;
+	for (std::map<std::string,void*>::iterator it =old_state->state_map.begin();it != old_state->state_map.end(); it++){
+		new_state->update_state(it->first,it->second);
 	}
-	if (!strcmp(msg->topic,"Bulb1/int_Bulb_Temp")){
-		int new_bulb_temp = (atoi((char*) msg->payload));
-		void* old_bulb_temp = db.parapet_state->retrieve_state(std::string("Bulb1/int_Bulb_Temp"));
-		if (old_bulb_temp){
-			log__printf(NULL,MOSQ_LOG_INFO,"old Bulb Temp State Found");
-			if (*(int*)old_bulb_temp != new_bulb_temp){
-				new_state.s.insert(std::string("Change_in_temperature"));
-				log__printf(NULL,MOSQ_LOG_INFO,"Proposition 'Change_in_temperature' true");	
-			}
+	// error_message_without_return("Initialized new state with old state values");
+	char* msg_topic = msg->topic;
+	void* msg_value = msg->payload;
+	if (std::string(msg_topic).find("int") != std::string::npos){
+		int* x = new int();
+		*x = atoi((char*)msg_value);
+		msg_value = (void*) x;
+	} else if (std::string(msg_topic).find("bool") != std::string::npos){
+		bool* x = new bool();
+		if (strcmp((char*)msg_topic,"ON") ==0 || strcmp((char*)msg_topic,"CLOSED") ==0){
+			*x = true;
 		} else{
-			new_state.s.insert(std::string("Change_in_temperature"));
-			log__printf(NULL,MOSQ_LOG_INFO,"Proposition 'Change_in_temperature' true");
+			*x = false;
 		}
+		msg_value = (void*) x;
 	}
+	new_state->update_state(std::string(msg_topic),msg_value);
+	// error_message_without_return("updated new message value");
 	
-	void* old_bulb_temp = db.parapet_state->retrieve_state(std::string("Bulb1/int_Bulb_Temp"));
-	if (old_bulb_temp){
-		log__printf(NULL, MOSQ_LOG_INFO,"Checking old state of %s: %d","Bulb1/int_Bulb_Temp",*(int*) old_bulb_temp);
-		if (*(int*)old_bulb_temp == 100){
-			new_state.s.insert(std::string("Color_temperature_100"));
-			log__printf(NULL,MOSQ_LOG_INFO,"Proposition 'Color_temperature_100' true");
-		}
-	}
+	sys_state true_props = db.pl_solver->eval_props(old_state,new_state);
+	// error_message_without_return("evaluated propositions");
     //send to policy engine
-	if(db.pengine->monitor(new_state)){
-		if (!strcmp(msg->topic,"Bulb1/int_Bulb_Level")){
-			char* x = (char*) msg->payload;
-			log__printf(NULL,MOSQ_LOG_INFO,"new_bulb_level: %s ",x);
-			int a = atoi(x);
-			db.parapet_state->update_state(std::string(msg->topic),(void*) &a);
-
-			
-		}
-		if (!strcmp(msg->topic,"Bulb1/int_Bulb_Temp")){
-			char* x = (char*) msg->payload;
-			log__printf(NULL,MOSQ_LOG_INFO,"new_bulb_temperature: %s ",x);		
-			int a = atoi(x);
-			db.parapet_state->update_state(std::string(msg->topic),(void*) &a);
-		}
-		// db.parapet_state->update_state(std::string(msg->topic),msg->payload);
+	
+	// std::size_t sz = true_props.s.size();
+	for (std::set<std::string>::iterator i = true_props.s.begin(); i != true_props.s.end(); i++){
+		std::cout << "Active Propositions:" <<std::endl;
+		std::cout << *i <<std::endl;
+	}
+	if(db.pengine->monitor(true_props)){
+		
+		db.parapet_state=new_state;
         return true;
     }
     else{
         return false;
     }
 }
+pl_engine* new_pl_engine(){
+	return new pl_engine();
+}
+
 
 
 

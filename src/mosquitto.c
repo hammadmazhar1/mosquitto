@@ -558,6 +558,12 @@ int main(int argc, char *argv[])
 		}
 		policy_engine_add_policy(db.pengine,raw_formula);
 	}
+	db.pl_solver = new pl_engine();
+	if (db.config->prop_file){
+		if (!db.pl_solver->add_prop_file(db.config->prop_file)){
+			log__printf(NULL,MOSQ_LOG_WARNING,"Could not read propositions from file:%s",db.config->prop_file);
+		}
+	}
 	log__printf(NULL, MOSQ_LOG_INFO, "Policy engine and state tracking created");
 // #endif
 

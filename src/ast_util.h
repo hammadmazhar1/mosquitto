@@ -3,10 +3,12 @@
 
 # include "headers.h"
 # include "ast.h" 
+# include "pl_ast.h"
 
 void print_tree(ast_node * cn);
 void free_tree(ast_node *cn);
-
+void print_tree(pl_ast_node * cn);
+void free_tree(pl_ast_node *cn);
 
 
 

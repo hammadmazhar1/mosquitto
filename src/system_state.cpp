@@ -15,7 +15,7 @@ bool system_state::update_state(std::string state_var, void* item){
         state_map[state_var] = (void*) x;
     } else if(state_var.find("str_") != std::string::npos){
         char* x = new char[1024];
-        strcpy(x, (char*) item);
+        strncpy(x, (char*) item,1024);
         state_map[state_var] = (void*) x;
     } else{
         return false;
