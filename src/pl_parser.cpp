@@ -124,9 +124,9 @@ std::pair< int , pl_ast_node *> pl_parser::parse_formula( char * formula, int cI
     
     cIndex += l ; 
     current_node->aIndex = globalIndex; ++globalIndex; 
-    #ifdef WITH_POLICY_CHECK 
-        printf("DEBUG TOKEN: %s\n",tok);
-    #endif 
+    // #ifdef WITH_POLICY_CHECK 
+    //     printf("DEBUG TOKEN: %s\n",tok);
+    // #endif 
     if(strcmp(tok,"==")==0)     return handle_binop(formula, cIndex, len, current_node, EQUAL); 
     else if(strcmp(tok,"&")==0) return handle_binop(formula, cIndex, len, current_node, LAND);
     else if(strcmp(tok,"|")==0) return handle_binop(formula, cIndex, len, current_node, LOR);
