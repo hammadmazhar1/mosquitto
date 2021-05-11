@@ -763,6 +763,9 @@ int config__read_file_core(struct mosquitto__config *config, bool reload, struct
 				}else if(!strcmp(token, "prop_file")){
 					if(conf__parse_string(&token, "prop_file", &config->prop_file, saveptr)) return MOSQ_ERR_INVAL;
 				}
+				}else if(!strcmp(token, "invariant_file")){
+					if(conf__parse_string(&token, "invariant_file", &config->invariant_file, saveptr)) return MOSQ_ERR_INVAL;
+				}
 				else if(!strcmp(token, "acl_file")){
 					conf__set_cur_security_options(config, cur_listener, &cur_security_options);
 					if(reload){

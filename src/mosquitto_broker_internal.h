@@ -301,6 +301,8 @@ struct mosquitto__config {
 	FILE* policy_fptr;
 	char* prop_file;
 	FILE* prop_fptr;
+	char* invariant_file;
+	FILE* invariant_fptr;
 // #endif
 #ifdef WITH_WEBSOCKETS
 	int websockets_log_level;
@@ -485,6 +487,7 @@ struct mosquitto_db{
 	policy_engine* pengine;
 	system_state* parapet_state;
 	pl_engine* pl_solver;
+	invariant_engine* inv_engine;
 // #endif
 	struct mosquitto_message_v5 *plugin_msgs;
 };

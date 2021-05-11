@@ -251,9 +251,9 @@ std::string pl_parser::validate_ast(pl_ast_node* root){
     if (root->nType==PREV || root->nType==CUR){
         if (root->nValue->find("int") != std::string::npos){
             return (std::string("INT"));
-        } else if (root->nValue->find("bool") != std::string::npos){
+        } else if (root->nValue->find("BOOL") != std::string::npos){
             return (std::string("BOOL"));
-        } else if (root->nValue->find("str") != std::string::npos){
+        } else if (root->nValue->find("STR") != std::string::npos){
             return (std::string("STR"));
         }
     } else if(root->nType==CONSTANT_INT){
