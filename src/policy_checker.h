@@ -31,7 +31,7 @@ vector<pair<string,string>> read_invariant_file(char* inv_fname);
 
 // bool policy_engine_monitor(policy_engine *pengine, struct mosquitto* context, struct mosquitto_msg_store * msg);
 bool policy_engine_monitor(struct mosquitto_msg_store* msg);
-vector<pair<string,void*> invariant_engine_monitor(struct mosquitto_msg_store* msg);
+vector<pair<string,void*>> invariant_engine_monitor(struct mosquitto_msg_store* msg);
 pl_engine* new_pl_engine();
 #ifndef __cplusplus
 }

@@ -26,6 +26,7 @@ int next_token(char *rFormula, char *token, int cIndex, int len)
 	{
 		if(rFormula[j]=='(' || rFormula[j]==')' || rFormula[j] == ',')
 		{
+            // std::cout<<i<<std::endl;
 			assert(i>0);
 			token[i]='\0';
 			return i;

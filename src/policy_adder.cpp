@@ -12,7 +12,7 @@ policy_engine::policy_engine()
     // error_message_without_return("cleared evaluators");
 }
 
-bool policy_engine::add_policy(char * raw_policy)
+bool policy_engine::add_policy(string raw_policy)
 {
     ast_node * fast = new ast_node() ;
     char msg[50];
@@ -24,8 +24,8 @@ bool policy_engine::add_policy(char * raw_policy)
         fprintf(stderr,"couldn't allocate space for ast root inside add_policy <policy_adder.h>\n");
         return false; 
     }
-        
-    ast_node* fast2 = formula_parser->parse_formula_to_ast(raw_policy, fast) ; 
+    char* raw_pol = raw_policy.c_str();
+    ast_node* fast2 = formula_parser->parse_formula_to_ast(raw_pol, fast) ; 
     if(!fast){
 	error_message_without_return("couldn't allocate space for ast root inside add_policy <policy_adder.h>\n");
         fprintf(stderr,"couldn't allocate space for ast root inside add_policy <policy_adder.h>\n");
@@ -117,7 +117,7 @@ bool invariant_engine::add_invariant(string invariant,string actions)
     error_message_without_return(msg);
     int invariant_size = formula_parser->getGlobalIndex();
 
-    pltl_evaluator * peval = new pltl_evaluator(policy_size); 
+    pltl_evaluator * peval = new pltl_evaluator(invariant_size); 
     error_message_without_return("created invariant evaluator");
     if(!peval)
     {
@@ -135,19 +135,20 @@ bool invariant_engine::add_invariant(string invariant,string actions)
         parsed_actions.push_back(action);
     }
     corrective_actions.push_back(parsed_actions);
-    assert(invariant_asts.size() == corrective_actions.sizes());
+    assert(invariant_asts.size() == corrective_actions.size());
     return true ; 
 }
-vector<pair<string,void*>> invariant_engine:test_invariants(sys_state st)
+vector<pair<string,void*>> invariant_engine::test_invariants(sys_state st)
 {
     vector<pair<string,void*>> retval;
     std::size_t sz = invariant_asts.size();
     std::cout<<"Number of invariant asts to check:"<< sz <<std::endl; 
     for(std::size_t i = 0 ; i < sz ; ++i)
     {
+        std::cout<<"Invariant testing: " << i << std::endl;  
         if(!invariant_evaluators[i]->policy_check(invariant_asts[i], &st)){
             vector<pair<string,void*>> possible_actions = corrective_actions[i];
-            for (size_t j = 0; i<possible_actions.size();++j){
+            for (size_t j = 0; j<possible_actions.size();++j){
                 bool to_be_added = true;
                 for (size_t k = 0; k <retval.size();++k){
                     if (retval[k].first == possible_actions[j].first){
@@ -155,6 +156,7 @@ vector<pair<string,void*>> invariant_engine:test_invariants(sys_state st)
                     }
                 }
                 if (to_be_added){
+                    std::cout<<"Invariant violated" << std::endl;
                     retval.push_back(possible_actions[j]);
                 }
             }
@@ -172,8 +174,10 @@ std::pair<string,void*> invariant_engine::parse_action(string action_string){
     int cIndex = 1;
     int len = action_string.length();
     int l = next_token(action_string.c_str(),tok,cIndex,len);
+    // std::cout<<tok<<std::endl;
     cIndex += l;
     string action_topic(tok);
+    cIndex +=1;
     l = next_token(action_string.c_str(),tok,cIndex,len);
     void* value;
     string action_value(tok);
@@ -183,19 +187,19 @@ std::pair<string,void*> invariant_engine::parse_action(string action_string){
         value = (void*) val;
     } else if (action_topic.find("bool") != string::npos){
         bool* val = new bool();
-        if strcmp(action_value.c_str(),'TRUE'){
+        if (strcmp(action_value.c_str(),"TRUE")){
             *val = true;
         } else{
             *val = false;
         }
-        value = (void*) val
+        value = (void*) val;
 
     } else if (action_topic.find("str") != string::npos){
         char val[1024];
         strcpy(val,action_value.c_str());
         value = (void*) val;
     }
-    pair<string, void*> ret_val;
+    pair<string, void*> retval;
     retval.first = action_topic;
     retval.second = value;
     return retval;

@@ -760,10 +760,11 @@ int config__read_file_core(struct mosquitto__config *config, bool reload, struct
 #ifdef WITH_POLICY_CHECK
 					if(conf__parse_string(&token, "policy_file", &config->policy_file, saveptr)) return MOSQ_ERR_INVAL;
 #endif
-				}else if(!strcmp(token, "prop_file")){
+				}
+				else if(!strcmp(token, "prop_file")){
 					if(conf__parse_string(&token, "prop_file", &config->prop_file, saveptr)) return MOSQ_ERR_INVAL;
 				}
-				}else if(!strcmp(token, "invariant_file")){
+				else if(!strcmp(token, "invariant_file")){
 					if(conf__parse_string(&token, "invariant_file", &config->invariant_file, saveptr)) return MOSQ_ERR_INVAL;
 				}
 				else if(!strcmp(token, "acl_file")){

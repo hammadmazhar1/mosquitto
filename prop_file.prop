@@ -1,3 +1,5 @@
 Change_in_temperature: !=(CURRENT(Bulb1/int_Bulb_Temp),PREVIOUS(Bulb1/int_Bulb_Temp))
 Change_in_intensity: !=(CURRENT(Bulb1/int_Bulb_Level),PREVIOUS(Bulb1/int_Bulb_Level))
 Color_temperature_100: ==(PREVIOUS(Bulb1/int_Bulb_Temp),CONSTANT_INT(100))
+BulbIsAlwaysOn: !=(CURRENT(Bulb1/int_Bulb_Level),CONSTANT_INT(0))
+BulbIsNeverWhite: !=(CURRENT(Bulb1/int_Bulb_Temp),CONSTANT_INT(0))

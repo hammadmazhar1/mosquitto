@@ -157,6 +157,7 @@ std::pair< int , pl_ast_node *> pl_parser::parse_formula( char * formula, int cI
         assert(cIndex < len); assert(formula[cIndex] =='('); ++cIndex;
         l = pl_next_token(formula,tok,cIndex,len);
         cIndex += l;
+        pl_error_message_without_return(tok);
         assert(cIndex < len); assert(formula[cIndex] ==')'); ++cIndex;
         current_node->nValue = new std::string(tok);
         pl_ast_node * new_node = new pl_ast_node();
@@ -170,6 +171,7 @@ std::pair< int , pl_ast_node *> pl_parser::parse_formula( char * formula, int cI
         current_node->nType = CONSTANT_INT;
         assert(cIndex < len); assert(formula[cIndex] =='('); ++cIndex;
         l = pl_next_token(formula,tok,cIndex,len);
+        
         cIndex += l;
         assert(cIndex < len); assert(formula[cIndex] ==')'); ++cIndex;
         int * i = new int;
@@ -251,9 +253,9 @@ std::string pl_parser::validate_ast(pl_ast_node* root){
     if (root->nType==PREV || root->nType==CUR){
         if (root->nValue->find("int") != std::string::npos){
             return (std::string("INT"));
-        } else if (root->nValue->find("BOOL") != std::string::npos){
+        } else if (root->nValue->find("bool") != std::string::npos){
             return (std::string("BOOL"));
-        } else if (root->nValue->find("STR") != std::string::npos){
+        } else if (root->nValue->find("str") != std::string::npos){
             return (std::string("STR"));
         }
     } else if(root->nType==CONSTANT_INT){

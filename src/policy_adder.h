@@ -15,7 +15,7 @@ class policy_engine
 public:
     //constructor: creates a parser and initializes the other data-structures. 
     policy_engine();
-    bool add_policy(char * raw_policy); 
+    bool add_policy(string raw_policy); 
     bool monitor(sys_state st);
     
 
@@ -37,8 +37,8 @@ public:
     bool add_invariant(string invariant, string actions);
     vector<pair<string,void*>> test_invariants(sys_state st);
     pair<string,void*> parse_action(string action_string);
-    vector<string> split_string(string input);
+    vector<string> split_string(string input, char delimiter);
     ~invariant_engine();
-}
+};
 
 #endif 

@@ -26,9 +26,9 @@ Contributors:
  *
  * The definitions are also used in Mosquitto broker plugins, and some functions are available to plugins.
  */
-#ifdef __cplusplus
-extern "C" {
-#endif
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
 
 
 #ifdef WIN32
@@ -3246,8 +3246,8 @@ libmosq_EXPORT const char *mosquitto_property_identifier_to_string(int identifie
 libmosq_EXPORT int mosquitto_string_to_property_info(const char *propname, int *identifier, int *type);
 
 
-#ifdef __cplusplus
-}
-#endif
+// #ifdef __cplusplus
+// }
+// #endif
 
 #endif

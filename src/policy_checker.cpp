@@ -13,11 +13,12 @@ policy_engine* new_policy_engine(){
 invariant_engine* new_invariant_engine(){
 	invariant_engine *inv_engine = new invariant_engine();
 	error_message_without_return("created invariant engine");
+	return inv_engine;
 }
 
 bool policy_engine_add_policy(policy_engine* pengine,char* raw_policy){
 
-    return pengine->add_policy(raw_policy);
+    return pengine->add_policy(string(raw_policy));
 }
 vector<string> read_policy_file(char* policy_fname){
 	string line;
@@ -36,10 +37,10 @@ vector<pair<string,string>> read_invariant_file(char* inv_fname){
 		pair<string,string> push_val;
 		string invariant;
 		string actions;
-		char delimiter = ';'
+		char delimiter = ';';
 		int pos = line.find(delimiter);
 		invariant = line.substr(0,pos);
-		actions = line.substr(pos+1,line.length);
+		actions = line.substr(pos+1,line.length());
 		push_val.first = invariant;
 		push_val.second = actions;
 		retval.push_back(push_val);
@@ -77,8 +78,9 @@ bool policy_engine_monitor(struct mosquitto_msg_store* msg){
     //send to policy engine
 	
 	// std::size_t sz = true_props.s.size();
+	std::cout << "Active Propositions:" <<std::endl;
 	for (std::set<std::string>::iterator i = true_props.s.begin(); i != true_props.s.end(); i++){
-		std::cout << "Active Propositions:" <<std::endl;
+		
 		std::cout << *i <<std::endl;
 	}
 	if(db.pengine->monitor(true_props)){
@@ -90,7 +92,7 @@ bool policy_engine_monitor(struct mosquitto_msg_store* msg){
         return false;
     }
 }
-vector<pair<string,void*> invariant_engine_monitor(struct mosquitto_msg_store* msg){
+vector<pair<string,void*>> invariant_engine_monitor(struct mosquitto_msg_store* msg){
 	system_state* new_state = new system_state();
 	system_state* old_state = db.parapet_state;
 	for (std::map<std::string,void*>::iterator it =old_state->state_map.begin();it != old_state->state_map.end(); it++){
@@ -116,11 +118,19 @@ vector<pair<string,void*> invariant_engine_monitor(struct mosquitto_msg_store* m
 	// error_message_without_return("updated new message value");
 	
 	sys_state true_props = db.pl_solver->eval_props(old_state,new_state);
+	std::cout << "Active Propositions:" <<std::endl;
 	for (std::set<std::string>::iterator i = true_props.s.begin(); i != true_props.s.end(); i++){
-		std::cout << "Active Propositions:" <<std::endl;
+		
 		std::cout << *i <<std::endl;
 	}
 	vector<pair<string,void*>> possible_actions = db.inv_engine->test_invariants(true_props);
+	if (possible_actions.size()>0){
+		for (size_t i =0;i < possible_actions.size(); i++){
+			new_state->update_state(possible_actions[i].first,possible_actions[i].second);
+		}
+	}
+	db.parapet_state = new_state;
+	delete old_state;
 	return possible_actions;
 }
 pl_engine* new_pl_engine(){

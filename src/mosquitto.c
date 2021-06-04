@@ -553,13 +553,14 @@ int main(int argc, char *argv[])
 	/*add policy to policy engine from config defined file*/
 	if (db.config->policy_file){
 		// db.config->policy_fptr = mosquitto__fopen(db.config->policy_file,"r",true);
-		std::vector<std::string> policies = read_policy_file(db.config->policy_fname);
-		if(policies->size == 0){
+		std::vector<std::string> policies = read_policy_file(db.config->policy_file);
+		if(policies.size() == 0){
 			log__printf(NULL,MOSQ_LOG_WARNING,"Could not read policy from file:%s",db.config->policy_file);
 		}
 		std::size_t sz = policies.size();
 		for (std::size_t i = 0;i<sz;++i){
 			db.pengine->add_policy(policies[i].c_str());
+		}
 	}
 	db.pl_solver = new pl_engine();
 	if (db.config->prop_file){
@@ -570,12 +571,12 @@ int main(int argc, char *argv[])
 	if (db.config->invariant_file){
 		// db.config->invariant_fptr = mosquitto__fopen(db.config->invariant_file,"r",true);
 		std::vector<std::pair<std::string,std::string>> invariants = read_invariant_file(db.config->invariant_file);
-		if(invariants->size==0){
+		if(invariants.size( )==0){
 			log__printf(NULL,MOSQ_LOG_WARNING,"Could not read invariants from file:%s",db.config->invariant_file);
 		}
-		sz = invariants.size();
+		std::size_t sz = invariants.size();
 		for (std::size_t i = 0; i<sz;++i){
-			db.inv_engine->add_invariant(invariants[i].first, invariants.second);
+			db.inv_engine->add_invariant(invariants[i].first, invariants[i].second);
 		}
 	}
 	log__printf(NULL, MOSQ_LOG_INFO, "Policy, invariant engine and state tracking created");

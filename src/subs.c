@@ -659,7 +659,7 @@ int sub__messages_queue(const char *source_id, const char *topic, uint8_t qos, i
 		rc2 = retain__store(topic, *stored, split_topics);
 		if(rc2) rc = rc2;
 	}
-
+	// log__printf(NULL,MOSQ_LOG_WARNING,"DB_MSG_QUEUED");
 	mosquitto__free(split_topics);
 	mosquitto__free(local_topic);
 	/* Remove our reference and free if needed. */

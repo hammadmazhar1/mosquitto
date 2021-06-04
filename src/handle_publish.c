@@ -317,9 +317,9 @@ int handle__publish(struct mosquitto *context)
 	if (msg_topic.find("set") != std::string::npos){
 		if(policy_engine_monitor(stored)){
 			// log__printf(NULL, MOSQ_LOG_INFO, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy (Bulb intensity only changes when bulb temp. is 100)", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
-			log__printf(NULL, MOSQ_LOG_INFO, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy (Bulb intensity changes only if color_temp != 100 before)", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
+			log__printf(NULL, MOSQ_LOG_INFO, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 		} else{
-			log__printf(NULL, MOSQ_LOG_INFO, "Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Violates Policy (Bulb intensity changes only if color_temp != 100 before)", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
+			log__printf(NULL, MOSQ_LOG_INFO, "Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Violates Policy", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 			//log__printf(NULL, MOSQ_LOG_INFO, "Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Violates Policy (Bulb intensity only changes when bulb temp. is 100)", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 			rc = send__puback(context, stored->source_mid, reason_code, NULL);
 			return rc;
@@ -327,80 +327,103 @@ int handle__publish(struct mosquitto *context)
 	} else {
 		std::vector<std::pair<std::string, void*>> corrective_actions = invariant_engine_monitor(stored);
 		if (corrective_actions.size()>0){
+			log__printf(NULL,MOSQ_LOG_INFO,"PUBLISH status from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)) violates invariant. Sending corrective actions", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 			/* setup sending out corrective action commands*/
-			uint_16_t source_mid = stored->source_mid;
-			uint_16_t mid = stored->mid;
+			uint16_t source_mid = stored->source_mid;
+			uint16_t mid = stored->mid;
 			for(std::size_t i = 0; i <corrective_actions.size();++i){
-				std::pair<std::string, void*>> action = corrective_actions[i];
+				source_mid++;
+				mid++;
+				std::pair<std::string, void*> action = corrective_actions[i];
 				struct mosquitto_msg_store* corrective_msg = mosquitto_calloc(1,sizeof(struct mosquitto_msg_store));
-				));
+				
 				if(corrective_msg == NULL){
 					return MOSQ_ERR_NOMEM;
 				}
 				corrective_msg->qos = stored->qos;
 				corrective_msg->db_id = stored->db_id;
+				// std::cout << 'a' << std::endl;
 				// corrective_msg->source_id =stored->source_id;
 				// corrective_msg->source_username = stored->source_username;
 				// corrective_msg->source_listener = stored->source_listener;
 				// corrective_msg->dest_ids = stored->dest_ids;
 				// corrective_msg->dest_id_count = stored->dest_id_count;
-				corrective_msg->ref_count = stored->ref_count;
+				corrective_msg->ref_count = stored->ref_count+1;
 				corrective_msg->topic = action.first.c_str();
 				corrective_msg->properties = stored->properties;
+				// std::cout << 'b' <<std::endl;
 				corrective_msg->message_expiry_time = stored->message_expiry_time;
 				corrective_msg->origin = mosq_mo_broker;
-				corrective_msg->source_mid = source_mid+1;
-				corrective_msg->mid = mid+1;
-				corrective_msg->qos = stored->qos;
-				if (action.first.find('INT') != std::string::npos){
+				corrective_msg->source_mid =source_mid;
+				corrective_msg->mid = mid;
+				// corrective_msg->qos = stored->qos;
+				// std::cout << 'c' << std::endl;
+				if (action.first.find("int") != std::string::npos){
 					int * num = (int*) (action.second);
-					std::string num_str = std::to_string(*num)
+					std::string num_str = std::to_string(*num);
 					void* data = (void*) num_str.c_str();
 					corrective_msg->payload = data;
-					corrective_msg->payloadlen = (uint_16_t) num_str.length();
-				} else if (action.first.find('BOOL') != std::string::npos){
+					corrective_msg->payloadlen = (uint16_t) num_str.length();
+					// std:cout << 'd' << std::endl;
+				} else if (action.first.find("bool") != std::string::npos){
 					bool * num = (bool*) (action.second);
-					char* data;
+					// char* data;
 					if (*num){
-						data = "true";
+						char* data = "TRUE";
+						corrective_msg->payload = (void*) data;
+						corrective_msg->payloadlen = 4;
 					} else{
-						data = "false";
+						char* data = "FALSE";
+						corrective_msg->payload = (void*) data;
+						corrective_msg->payloadlen = 5;
 					}
-					std::string num_str = std::string(data);
-					void* data = (void*) data;
-					corrective_msg->payload = data;
-					corrective_msg->payloadlen = (uint_16_t) num_str.length();
-				} else if (action.first.find('STR') != std::string::npos){
+					// corrective_msg->payloadlen = (uint16_t) num_str.length();
+				} else if (action.first.find("str") != std::string::npos){
 					std::string data_str = std::string((char*) (action.second));
 					corrective_msg->payload = action.second;
 					corrective_msg->payloadlen = data_str.length();
 				}
 
 				// sub__messages_queue(context->id, stored->topic, stored->qos, stored->retain, &stored)
-				if(msg->qos == 0
+				if(corrective_msg->qos == 1
 						|| db__ready_for_flight(&context->msgs_in, corrective_msg->qos)
 						|| db__ready_for_queue(context, corrective_msg->qos, &context->msgs_in)){
-
+					// std::cout << 'e' << std::endl;
 					dup = 0;
 					rc = db__message_store(context, corrective_msg, message_expiry_interval, 0, mosq_mo_broker);
+					std::cout << rc << std::endl;
 					rc2 = sub__messages_queue(context->id, corrective_msg->topic, corrective_msg->qos, corrective_msg->retain, &corrective_msg);
+					std::cout << rc2 << std::endl;
+					// std::cout << 'f' << std::endl;
 						}
 				
 				mid++;			
 			}
+		} else{
+			log__printf(NULL,MOSQ_LOG_INFO,"PUBLISH status from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)) passes invariant.", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
+
 		}
 	}
 	
 	/* this snippet controls message pass on to the sending mechanisms,
 	 any policy decisions must be checked before here*/
+	 log__printf(NULL, MOSQ_LOG_INFO, "Forwarding PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 	switch(stored->qos){
 		case 0:
+			log__printf(NULL, MOSQ_LOG_INFO, "Forwarding PUBLISH with QoS 0 ");
 			rc2 = sub__messages_queue(context->id, stored->topic, stored->qos, stored->retain, &stored);
+			// log__printf(NULL, MOSQ_LOG_INFO, "Forwarding PUBLISH with QoS 0 from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 			if(rc2 > 0) rc = 1;
 			break;
 		case 1:
+			// log__printf(NULL, MOSQ_LOG_INFO, "Forwarding PUBLISH with QoS 1 ");
+
 			util__decrement_receive_quota(context);
+						// log__printf(NULL, MOSQ_LOG_INFO, "Forwarding PUBLISH with QoS 1 ");
+
 			rc2 = sub__messages_queue(context->id, stored->topic, stored->qos, stored->retain, &stored);
+			log__printf(NULL, MOSQ_LOG_INFO, "Forwarding PUBLISH with QoS 1 ");
+
 			/* stored may now be free, so don't refer to it */
 			if(rc2 == MOSQ_ERR_SUCCESS || context->protocol != mosq_p_mqtt5){
 				if(send__puback(context, mid, 0, NULL)) rc = 1;
@@ -409,8 +432,10 @@ int handle__publish(struct mosquitto *context)
 			}else{
 				rc = rc2;
 			}
+			// log__printf(NULL, MOSQ_LOG_INFO, "Forwarding PUBLISH with QoS 1 from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 			break;
 		case 2:
+			log__printf(NULL, MOSQ_LOG_INFO, "Forwarding PUBLISH with QoS 2 ");
 			if(dup == 0){
 				res = db__message_insert(context, stored->source_mid, mosq_md_in, stored->qos, stored->retain, stored, NULL, false);
 			}else{
@@ -424,6 +449,7 @@ int handle__publish(struct mosquitto *context)
 			}else if(res == 1){
 				rc = 1;
 			}
+			// log__printf(NULL, MOSQ_LOG_INFO, "Forwarding PUBLISH with QoS 2 from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 			break;
 	}
 
