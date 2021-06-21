@@ -198,7 +198,7 @@ std::pair< int , pl_ast_node *> pl_parser::parse_formula( char * formula, int cI
    
     } 
     else if(strcmp(tok,"CONSTANT_STR")==0){
-        current_node->nType = CONSTANT_BOOL;
+        current_node->nType = CONSTANT_STR;
         assert(cIndex < len); assert(formula[cIndex] =='('); ++cIndex;
         l = pl_next_token(formula,tok,cIndex,len);
         cIndex += l;

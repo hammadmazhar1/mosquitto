@@ -314,7 +314,7 @@ int handle__publish(struct mosquitto *context)
 	/*PARAPET Policy Compliance Check*/
 	log__printf(NULL, MOSQ_LOG_DEBUG, "checking for policy compliance");
 	std::string msg_topic = std::string(stored->topic);
-	if (msg_topic.find("set") != std::string::npos){
+	if (msg_topic.find("/set") != std::string::npos){
 		if(policy_engine_monitor(stored)){
 			// log__printf(NULL, MOSQ_LOG_INFO, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy (Bulb intensity only changes when bulb temp. is 100)", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
 			log__printf(NULL, MOSQ_LOG_INFO, "Accepted PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)): Maintains Policy", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
@@ -325,6 +325,7 @@ int handle__publish(struct mosquitto *context)
 			return rc;
 		}
 	} else {
+		std::cout<<(char*) stored->payload <<std::endl;
 		std::vector<std::pair<std::string, void*>> corrective_actions = invariant_engine_monitor(stored);
 		if (corrective_actions.size()>0){
 			log__printf(NULL,MOSQ_LOG_INFO,"PUBLISH status from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)) violates invariant. Sending corrective actions", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
@@ -369,11 +370,11 @@ int handle__publish(struct mosquitto *context)
 					bool * num = (bool*) (action.second);
 					// char* data;
 					if (*num){
-						char* data = "TRUE";
+						char* data = "true";
 						corrective_msg->payload = (void*) data;
 						corrective_msg->payloadlen = 4;
 					} else{
-						char* data = "FALSE";
+						char* data = "false";
 						corrective_msg->payload = (void*) data;
 						corrective_msg->payloadlen = 5;
 					}
@@ -391,9 +392,9 @@ int handle__publish(struct mosquitto *context)
 					// std::cout << 'e' << std::endl;
 					dup = 0;
 					rc = db__message_store(context, corrective_msg, message_expiry_interval, 0, mosq_mo_broker);
-					std::cout << rc << std::endl;
+					// std::cout << rc << std::endl;
 					rc2 = sub__messages_queue(context->id, corrective_msg->topic, corrective_msg->qos, corrective_msg->retain, &corrective_msg);
-					std::cout << rc2 << std::endl;
+					// std::cout << rc2 << std::endl;
 					// std::cout << 'f' << std::endl;
 						}
 				

@@ -63,7 +63,7 @@ bool policy_engine_monitor(struct mosquitto_msg_store* msg){
 		msg_value = (void*) x;
 	} else if (std::string(msg_topic).find("bool") != std::string::npos){
 		bool* x = new bool();
-		if (strcmp((char*)msg_topic,"ON") ==0 || strcmp((char*)msg_topic,"CLOSED") ==0){
+		if (strcmp((char*)msg_value,"ON") ==0 || strcmp((char*)msg_value,"CLOSED") ==0){
 			*x = true;
 		} else{
 			*x = false;
@@ -107,7 +107,7 @@ vector<pair<string,void*>> invariant_engine_monitor(struct mosquitto_msg_store* 
 		msg_value = (void*) x;
 	} else if (std::string(msg_topic).find("bool") != std::string::npos){
 		bool* x = new bool();
-		if (strcmp((char*)msg_topic,"ON") ==0 || strcmp((char*)msg_topic,"CLOSED") ==0){
+		if (strcmp((char*)msg_value,"ON") ==0 || strcmp((char*)msg_value,"CLOSED") ==0){
 			*x = true;
 		} else{
 			*x = false;
