@@ -325,7 +325,7 @@ int handle__publish(struct mosquitto *context)
 			return rc;
 		}
 	} else {
-		std::cout<<(char*) stored->payload <<std::endl;
+		// std::cout<<(char*) stored->payload <<std::endl;
 		std::vector<std::pair<std::string, void*>> corrective_actions = invariant_engine_monitor(stored);
 		if (corrective_actions.size()>0){
 			log__printf(NULL,MOSQ_LOG_INFO,"PUBLISH status from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes)) violates invariant. Sending corrective actions", context->id, dup, stored->qos, stored->retain, stored->source_mid, stored->topic, (long)stored->payloadlen);
